@@ -9,6 +9,8 @@ from iremover.bg import remove
 from iremover import __version__
 from watchdog.observers import Observer
 from iremover.session import new_session
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Query, Form, Depends, File
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 
 @click.group()
@@ -231,3 +233,72 @@ def p(
         finally:
             observer.stop()
             observer.join()
+
+
+@main.command(help="for a http server")
+@click.option(
+    "-p",
+    "--port",
+    default=5000,
+    type=int,
+    show_default=True,
+    help="port",
+)
+@click.option(
+    "-l",
+    "--log_level",
+    default="info",
+    type=str,
+    show_default=True,
+    help="log level",
+)
+@click.option(
+    "-t",
+    "--threads",
+    default=None,
+    type=int,
+    show_default=True,
+    help="number of worker threads",
+)
+def s(port: int, log_level: str, threads: int) -> None:
+    sessions: dict[str, BaseSession] = {}
+    tags_metadata = [
+        {
+            "name": "Background Removal",
+            "description": "Endpoints that perform background removal with different image sources.",
+            "externalDocs": {
+                "description": "GitHub Source",
+                "url": "https://github.com/pchchv/iremover",
+            },
+        },
+    ]
+    app = FastAPI(
+        title="iremover",
+        description="iremover is a tool to remove images background.",
+        version=__version__,
+        contact={
+            "name": "Daniel Gatis",
+            "url": "https://github.com/pchchv",
+            "email": "ipchchv@gmail.com",
+        },
+        license_info={
+            "name": "MIT License",
+            "url": "https://github.com/pchchv/iremover/blob/main/LICENSE.txt",
+        },
+        openapi_tags=tags_metadata,
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_credentials=True,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    class ModelType(str, Enum):
+        u2net = "u2net"
+        u2netp = "u2netp"
+        u2net_human_seg = "u2net_human_seg"
+        u2net_cloth_seg = "u2net_cloth_seg"
+        silueta = "silueta"
