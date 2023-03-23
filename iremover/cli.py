@@ -2,13 +2,19 @@ import sys
 import time
 import click
 import pathlib
+import aiohttp
+import uvicorn
 import filetype
+from enum import Enum
 from tqdm import tqdm
 from typing import IO, cast
+from asyncer import asyncify
 from iremover.bg import remove
 from iremover import __version__
 from watchdog.observers import Observer
 from iremover.session import new_session
+from starlette.responses import Response
+from iremover.base_session import BaseSession
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Query, Form, Depends, File
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -302,3 +308,37 @@ def s(port: int, log_level: str, threads: int) -> None:
         u2net_human_seg = "u2net_human_seg"
         u2net_cloth_seg = "u2net_cloth_seg"
         silueta = "silueta"
+
+    class CommonQueryParams:
+        def __init__(
+            self,
+            model: ModelType = Query(
+                default=ModelType.u2net,
+                description="Model to use when processing image",
+            ),
+            a: bool = Query(default=False, description="Enable Alpha Matting"),
+            af: int = Query(
+                default=240,
+                ge=0,
+                le=255,
+                description="Alpha Matting (Foreground Threshold)",
+            ),
+            ab: int = Query(
+                default=10,
+                ge=0,
+                le=255,
+                description="Alpha Matting (Background Threshold)",
+            ),
+            ae: int = Query(
+                default=10, ge=0, description="Alpha Matting (Erode Structure Size)"
+            ),
+            om: bool = Query(default=False, description="Only Mask"),
+            ppm: bool = Query(default=False, description="Post Process Mask"),
+        ):
+            self.model = model
+            self.a = a
+            self.af = af
+            self.ab = ab
+            self.ae = ae
+            self.om = om
+            self.ppm = ppm
