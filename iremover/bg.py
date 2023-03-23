@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 from enum import Enum
+from typing import List
 from PIL.Image import Image as PILImage
 from scipy.ndimage import binary_erosion
 from pymatting.util.util import stack_images
@@ -76,3 +77,17 @@ def alpha_matting_cutout(
     cutout = Image.fromarray(cutout)
 
     return cutout
+
+
+def get_concat_v(img1: PILImage, img2: PILImage) -> PILImage:
+    dst = Image.new("RGBA", (img1.width, img1.height + img2.height))
+    dst.paste(img1, (0, 0))
+    dst.paste(img2, (0, img1.height))
+    return dst
+
+
+def get_concat_v_multi(imgs: List[PILImage]) -> PILImage:
+    pivot = imgs.pop(0)
+    for im in imgs:
+        pivot = get_concat_v(pivot, im)
+    return pivot
