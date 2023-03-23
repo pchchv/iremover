@@ -342,3 +342,54 @@ def s(port: int, log_level: str, threads: int) -> None:
             self.ae = ae
             self.om = om
             self.ppm = ppm
+
+    class CommonQueryPostParams:
+        def __init__(
+            self,
+            model: ModelType = Form(
+                default=ModelType.u2net,
+                description="Model to use when processing image",
+            ),
+            a: bool = Form(default=False, description="Enable Alpha Matting"),
+            af: int = Form(
+                default=240,
+                ge=0,
+                le=255,
+                description="Alpha Matting (Foreground Threshold)",
+            ),
+            ab: int = Form(
+                default=10,
+                ge=0,
+                le=255,
+                description="Alpha Matting (Background Threshold)",
+            ),
+            ae: int = Form(
+                default=10, ge=0, description="Alpha Matting (Erode Structure Size)"
+            ),
+            om: bool = Form(default=False, description="Only Mask"),
+            ppm: bool = Form(default=False, description="Post Process Mask"),
+        ):
+            self.model = model
+            self.a = a
+            self.af = af
+            self.ab = ab
+            self.ae = ae
+            self.om = om
+            self.ppm = ppm
+
+    def im_without_bg(content: bytes, commons: CommonQueryParams) -> Response:
+        return Response(
+            remove(
+                content,
+                session=sessions.setdefault(
+                    commons.model.value, new_session(commons.model.value)
+                ),
+                alpha_matting=commons.a,
+                alpha_matting_foreground_threshold=commons.af,
+                alpha_matting_background_threshold=commons.ab,
+                alpha_matting_erode_size=commons.ae,
+                only_mask=commons.om,
+                post_process_mask=commons.ppm,
+            ),
+            media_type="image/png",
+        )
