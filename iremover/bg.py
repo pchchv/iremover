@@ -1,5 +1,7 @@
 import numpy as np
+from PIL import Image
 from enum import Enum
+from PIL.Image import Image as PILImage
 from cv2 import getStructuringElement, MORPH_OPEN, MORPH_ELLIPSE, BORDER_DEFAULT, morphologyEx, GaussianBlur
 
 kernel = getStructuringElement(MORPH_ELLIPSE, (3, 3))
@@ -22,3 +24,9 @@ def post_process(mask: np.ndarray) -> np.ndarray:
     mask = GaussianBlur(mask, (5, 5), sigmaX=2, sigmaY=2, borderType=BORDER_DEFAULT)
     mask = np.where(mask < 127, 0, 255).astype(np.uint8)  # convert again to binary
     return mask
+
+
+def naive_cutout(img: PILImage, mask: PILImage) -> PILImage:
+    empty = Image.new("RGBA", (img.size), 0)
+    cutout = Image.composite(img, empty, mask)
+    return cutout
