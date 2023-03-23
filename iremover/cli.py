@@ -393,3 +393,45 @@ def s(port: int, log_level: str, threads: int) -> None:
             ),
             media_type="image/png",
         )
+
+    @app.on_event("startup")
+    def startup():
+        if threads is not None:
+            from anyio import CapacityLimiter
+            from anyio.lowlevel import RunVar
+
+            RunVar("_default_thread_limiter").set(CapacityLimiter(threads))
+
+    @app.get(
+        path="/",
+        tags=["Background Removal"],
+        summary="Remove from URL",
+        description="Removes the background from an image obtained by retrieving an URL.",
+    )
+    async def get_index(
+        url: str = Query(
+            default=..., description="URL of the image that has to be processed."
+        ),
+        commons: CommonQueryParams = Depends(),
+    ):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                file = await response.read()
+                return await asyncify(im_without_bg)(file, commons)
+
+    @app.post(
+        path="/",
+        tags=["Background Removal"],
+        summary="Remove from Stream",
+        description="Removes the background from an image sent within the request itself.",
+    )
+    async def post_index(
+        file: bytes = File(
+            default=...,
+            description="Image file (byte stream) that has to be processed.",
+        ),
+        commons: CommonQueryPostParams = Depends(),
+    ):
+        return await asyncify(im_without_bg)(file, commons)
+
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level=log_level)
