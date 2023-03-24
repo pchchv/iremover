@@ -55,7 +55,8 @@ pallete3 = [
 class ClothSession(BaseSession):
     def predict(self, img: PILImage) -> List[PILImage]:
         ort_outs = self.inner_session.run(
-            None, self.normalize(img, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5), (768, 768))
+            None,
+            self.normalize(img, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5), (768, 768))
         )
 
         pred = ort_outs
@@ -85,4 +86,3 @@ class ClothSession(BaseSession):
         masks.append(mask3)
 
         return masks
-    

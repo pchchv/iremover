@@ -19,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Query, Form, Depends, File
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 
+
 @click.group()
 @click.version_option(version=__version__)
 def main() -> None:
@@ -83,8 +84,8 @@ def main() -> None:
     help="post process the mask",
 )
 @click.argument(
-    "input", default=(None if sys.stdin.isatty() else "-"), type=click.File("rb")
-)
+    "input", default=(None if sys.stdin.isatty() else "-"),
+    type=click.File("rb"))
 @click.argument(
     "output",
     default=(None if sys.stdin.isatty() else "-"),
@@ -180,7 +181,11 @@ def i(model: str, input: IO, output: IO, **kwargs) -> None:
     ),
 )
 def p(
-    model: str, input: pathlib.Path, output: pathlib.Path, watch: bool, **kwargs
+    model: str,
+    input: pathlib.Path,
+    output: pathlib.Path,
+    watch: bool,
+    **kwargs
 ) -> None:
     session = new_session(model)
 
@@ -199,13 +204,16 @@ def p(
                 each_output.write_bytes(
                     cast(
                         bytes,
-                        remove(each_input.read_bytes(), session=session, **kwargs),
+                        remove(each_input.read_bytes(),
+                               session=session,
+                               **kwargs),
                     )
                 )
 
                 if watch:
                     print(
-                        f"processed: {each_input.absolute()} -> {each_output.absolute()}"
+                        f"processed: {each_input.absolute()} -> \
+                            {each_output.absolute()}"
                     )
         except Exception as e:
             print(e)
@@ -224,7 +232,8 @@ def p(
         class EventHandler(FileSystemEventHandler):
             def on_any_event(self, event: FileSystemEvent) -> None:
                 if not (
-                    event.is_directory or event.event_type in ["deleted", "closed"]
+                    event.is_directory or event.event_type in ["deleted",
+                                                               "closed"]
                 ):
                     process(pathlib.Path(event.src_path))
 
@@ -271,7 +280,8 @@ def s(port: int, log_level: str, threads: int) -> None:
     tags_metadata = [
         {
             "name": "Background Removal",
-            "description": "Endpoints that perform background removal with different image sources.",
+            "description": "Endpoints that perform background removal with \
+                different image sources.",
             "externalDocs": {
                 "description": "GitHub Source",
                 "url": "https://github.com/pchchv/iremover",
@@ -330,7 +340,9 @@ def s(port: int, log_level: str, threads: int) -> None:
                 description="Alpha Matting (Background Threshold)",
             ),
             ae: int = Query(
-                default=10, ge=0, description="Alpha Matting (Erode Structure Size)"
+                default=10,
+                ge=0,
+                descriptions="Alpha Matting (Erode Structure Size)"
             ),
             om: bool = Query(default=False, description="Only Mask"),
             ppm: bool = Query(default=False, description="Post Process Mask"),
@@ -364,7 +376,9 @@ def s(port: int, log_level: str, threads: int) -> None:
                 description="Alpha Matting (Background Threshold)",
             ),
             ae: int = Form(
-                default=10, ge=0, description="Alpha Matting (Erode Structure Size)"
+                default=10,
+                ge=0,
+                description="Alpha Matting (Erode Structure Size)"
             ),
             om: bool = Form(default=False, description="Only Mask"),
             ppm: bool = Form(default=False, description="Post Process Mask"),
@@ -406,11 +420,13 @@ def s(port: int, log_level: str, threads: int) -> None:
         path="/",
         tags=["Background Removal"],
         summary="Remove from URL",
-        description="Removes the background from an image obtained by retrieving an URL.",
+        description="Removes the background from an \
+            image obtained by retrieving an URL.",
     )
     async def get_index(
         url: str = Query(
-            default=..., description="URL of the image that has to be processed."
+            default=...,
+            description="URL of the image that has to be processed."
         ),
         commons: CommonQueryParams = Depends(),
     ):
@@ -423,7 +439,8 @@ def s(port: int, log_level: str, threads: int) -> None:
         path="/",
         tags=["Background Removal"],
         summary="Remove from Stream",
-        description="Removes the background from an image sent within the request itself.",
+        description="Removes the background from an \
+            image sent within the request itself.",
     )
     async def post_index(
         file: bytes = File(
