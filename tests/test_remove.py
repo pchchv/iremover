@@ -1,10 +1,9 @@
+from PIL import Image
 from io import BytesIO
 from pathlib import Path
-
-from imagehash import average_hash
-from PIL import Image
-
 from iremover import remove
+from imagehash import average_hash
+
 
 here = Path(__file__).parent.resolve()
 
@@ -16,6 +15,7 @@ def remover(image, expected):
     expected_hash = average_hash(Image.open(BytesIO(expected)))
 
     assert actual_hash == expected_hash
+
 
 def test_remove():
     for i in range (1, 6):
