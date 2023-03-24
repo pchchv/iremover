@@ -39,17 +39,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    description=("Python 3 library. Image background remover."),
-    include_package_data=True,
-    long_description_content_type="text/markdown",
-    long_description=long_description,
-    zip_safe=True,
-    python_requires=">=3.7",
-    project_urls={
-        "Bug Reports": "https://github.com/pchchv/iremover/issues",
-        "Read the Docs": "https://github.com/pchchv/iremover/docs",
-    },
-    keywords=["remove", "background",],
     install_requires=[
         "aiohttp==3.8.4",
         "asyncer==0.0.2",
@@ -66,9 +55,15 @@ setup(
         "uvicorn==0.21.1",
         "watchdog==3.0.0",
     ],
-    entry_points={
-        "console_scripts": [
-            "iremover=iremover.cli:main",
-        ],
+    description=("Python 3 library. Image background remover."),
+    include_package_data=True,
+    long_description_content_type="text/markdown",
+    long_description=long_description,
+    zip_safe=True,
+    python_requires=">=3.7",
+    project_urls={
+        "Bug Reports": "https://github.com/pchchv/iremover/issues",
+        "Read the Docs": "https://github.com/pchchv/iremover/docs",
     },
+    keywords=["remove", "background",],
 )
