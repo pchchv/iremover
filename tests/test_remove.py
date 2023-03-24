@@ -4,7 +4,6 @@ from pathlib import Path
 from iremover import remove
 from imagehash import average_hash
 
-
 here = Path(__file__).parent.resolve()
 
 
