@@ -18,8 +18,8 @@ def remover(image, expected):
 
 
 def test_remove():
-    for i in range (1, 6):
-        image = Path(here / "." / "img" / str(i) + '.jpg' ).read_bytes()
+    for i in range(1, 6):
+        image = Path(here / "." / "img" / str(i) + '.jpg').read_bytes()
         expected = Path(here / "." / "img" / str(i) + '.out.png').read_bytes()
 
         remover(image, expected)
